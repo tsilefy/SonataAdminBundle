@@ -23,7 +23,14 @@ Reference Guide
    reference/configuration
    reference/architecture
    reference/dashboard
+   reference/search
+   reference/select2
    reference/routing
+   reference/action_list
+   reference/action_create_edit
+   reference/action_show
+   reference/action_delete
+   reference/action_export
    reference/saving_hooks
    reference/form_types
    reference/form_help_message
@@ -34,43 +41,22 @@ Reference Guide
    reference/translation
    reference/security
    reference/extensions
-   reference/advance
+   reference/events
+   reference/advanced
    reference/console
    reference/preview_mode
    reference/troubleshooting
 
-Overview
+Cookbook
 --------
 
-.. figure:: ./images/dashboard.png
-   :align: center
-   :alt: The dashboard
-   :width: 700px
+.. toctree::
+   :maxdepth: 1
+   :numbered:
 
-   The dashboard
-
-.. figure:: ./images/post_list.png
-   :align: center
-   :alt: The model list
-   :width: 700px
-
-   The model list
-
-.. figure:: ./images/post_edit.png
-   :align: center
-   :alt: The model edition
-   :width: 700px
-
-   The model edition
-
-.. figure:: ./images/post_create_tag.png
-   :align: center
-   :alt: The modal model edition
-   :width: 700px
-
-   The modal model edition
-
-.. figure:: ./images/acl_editor.png
-   :align: center
-   :alt: The ACL editor
-   :width: 700px
+   cookbook/recipe_file_uploads
+   cookbook/recipe_image_previews
+   cookbook/recipe_row_templates
+   cookbook/recipe_sortable_listing
+   cookbook/recipe_dynamic_form_modification
+   cookbook/recipe_custom_action

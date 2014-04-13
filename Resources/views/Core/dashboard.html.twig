@@ -14,15 +14,36 @@ file that was distributed with this source code.
 {% block title %}{{ 'title_dashboard'|trans({}, 'SonataAdminBundle') }}{% endblock%}
 {% block breadcrumb %}{% endblock %}
 {% block content %}
-    <div class="row-fluid">
-        <div class="span6">
+
+    {{ sonata_block_render_event('sonata.admin.dashboard.top', { 'admin_pool': admin_pool }) }}
+
+    <div class="row">
+        {% set has_center = false %}
+        {% for block in blocks %}
+            {% if block.position == 'center' %}
+                {% set has_center = true %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="{% if has_center %}col-md-3{% else %}col-md-6{% endif %}">
             {% for block in blocks %}
                 {% if block.position == 'left' %}
                     {{ sonata_block_render({ 'type': block.type, 'settings': block.settings}) }}
                 {% endif %}
             {% endfor %}
         </div>
-        <div class="span6">
+
+        {% if has_center %}
+            <div class="col-md-4">
+                {% for block in blocks %}
+                    {% if block.position == 'center' %}
+                        {{ sonata_block_render({ 'type': block.type, 'settings': block.settings}) }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="{% if has_center %}col-md-4{% else %}col-md-6{% endif %}">
             {% for block in blocks %}
                 {% if block.position == 'right' %}
                     {{ sonata_block_render({ 'type': block.type, 'settings': block.settings}) }}
@@ -30,4 +51,7 @@ file that was distributed with this source code.
             {% endfor %}
         </div>
     </div>
+
+    {{ sonata_block_render_event('sonata.admin.dashboard.bottom', { 'admin_pool': admin_pool }) }}
+
 {% endblock %}

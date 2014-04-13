@@ -10,10 +10,15 @@
  */
 
 namespace Sonata\AdminBundle\Filter;
+
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 
 interface FilterInterface
 {
+    const CONDITION_OR = 'OR';
+
+    const CONDITION_AND = 'AND';
+
     /**
      * Apply the filter to the QueryBuilder instance
      *
@@ -121,4 +126,28 @@ interface FilterInterface
      * @return array
      */
     public function getRenderSettings();
+
+    /**
+     * Returns true if filter is active
+     *
+     * @return boolean
+     */
+    public function isActive();
+
+    /**
+     * Set the condition to use with the left side of the query : OR or AND
+     *
+     * @param string $condition
+     */
+    public function setCondition($condition);
+
+    /**
+     * @return string
+     */
+    public function getCondition();
+
+    /**
+     * @return string
+     */
+    public function getTranslationDomain();
 }

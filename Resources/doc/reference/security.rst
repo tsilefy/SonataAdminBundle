@@ -25,9 +25,8 @@ There is a little magic in the ``SonataAdminBundle``: if the bundle detects the
 ``SonataUserBundle`` class, then the default ``user_block`` template will be
 changed to use the one provided by the ``SonataUserBundle``.
 
-The install process is available on the dedicated `SonataUserBundle's
-documentation area
-<http://sonata-project.org/bundles/user/master/doc/reference/installation.html>`_
+The install process is available on the dedicated
+`SonataUserBundle's documentation area`_.
 
 
 Security handlers
@@ -57,31 +56,36 @@ The other parameters are set as default, change them if needed.
 
 Using roles:
 
-.. code-block:: yaml
+.. configuration-block::
 
-    sonata_admin:
-        security:
-            handler: sonata.admin.security.handler.role
+    .. code-block:: yaml
+
+        # app/config/config.yml
+        sonata_admin:
+            security:
+                handler: sonata.admin.security.handler.role
 
 Using ACL:
 
-.. code-block:: yaml
+.. configuration-block::
 
-    # app/config/config.yml
-    sonata_admin:
-        security:
-            handler: sonata.admin.security.handler.acl
-            # acl security information
-            information:
-                GUEST:    [VIEW, LIST]
-                STAFF:    [EDIT, LIST, CREATE]
-                EDITOR:   [OPERATOR, EXPORT]
-                ADMIN:    [MASTER]
-            # permissions not related to an object instance and also to be available when objects do not exist
-            # the DELETE admin permission means the user is allowed to batch delete objects
-            admin_permissions: [CREATE, LIST, DELETE, UNDELETE, EXPORT, OPERATOR, MASTER]
-            # permission related to the objects
-            object_permissions: [VIEW, EDIT, DELETE, UNDELETE, OPERATOR, MASTER, OWNER]
+    .. code-block:: yaml
+
+        # app/config/config.yml
+        sonata_admin:
+            security:
+                handler: sonata.admin.security.handler.acl
+                # acl security information
+                information:
+                    GUEST:    [VIEW, LIST]
+                    STAFF:    [EDIT, LIST, CREATE]
+                    EDITOR:   [OPERATOR, EXPORT]
+                    ADMIN:    [MASTER]
+                # permissions not related to an object instance and also to be available when objects do not exist
+                # the DELETE admin permission means the user is allowed to batch delete objects
+                admin_permissions: [CREATE, LIST, DELETE, UNDELETE, EXPORT, OPERATOR, MASTER]
+                # permission related to the objects
+                object_permissions: [VIEW, EDIT, DELETE, UNDELETE, OPERATOR, MASTER, OWNER]
 
 Later, we will explain how to set up ACL with the
 ``FriendsOfSymfony/UserBundle``.
@@ -89,7 +93,7 @@ Later, we will explain how to set up ACL with the
 Role handler
 -----------------
 
-The ``sonata.admin.security.handler.role`` allows you to operate finely on the actions that can be done (den peding on the entity class), without requiring to set up ACL. 
+The ``sonata.admin.security.handler.role`` allows you to operate finely on the actions that can be done (depending on the entity class), without requiring to set up ACL.
 
 Configuration
 ~~~~~~~~~~~~~
@@ -107,43 +111,46 @@ The permissions are:
 * DELETE: delete an existing object
 * EXPORT (for the native Sonata export links)
 
-Each permission is relative to an admin: if you try to get a list in FooAdmin (declared as ``sonata.admin.demo.foo`` 
+Each permission is relative to an admin: if you try to get a list in FooAdmin (declared as ``sonata.admin.demo.foo``
 service), Sonata will check if the user has the ``ROLE_SONATA_ADMIN_DEMO_FOO_EDIT`` role.
 
 So our ``security.yml`` file may look to something like this:
 
-.. code-block:: yaml
+.. configuration-block::
 
-    security:
-        ...
-        role_hierarchy:
-            # for convenience, I decided to gather Sonata roles here
-            ROLE_SONATA_FOO_READER:
-                - ROLE_SONATA_ADMIN_DEMO_FOO_LIST
-                - ROLE_SONATA_ADMIN_DEMO_FOO_VIEW
-            ROLE_SONATA_FOO_EDITOR:
-                - ROLE_SONATA_ADMIN_DEMO_FOO_CREATE
-                - ROLE_SONATA_ADMIN_DEMO_FOO_EDIT
-            ROLE_SONATA_FOO_ADMIN:
-                - ROLE_SONATA_ADMIN_DEMO_FOO_DELETE
-                - ROLE_SONATA_ADMIN_DEMO_FOO_EXPORT
-            # those are the roles I will use (less verbose)
-            ROLE_STAFF:             [ROLE_USER, ROLE_SONATA_FOO_READER]
-            ROLE_ADMIN:             [ROLE_STAFF, ROLE_SONATA_FOO_EDITOR, ROLE_SONATA_FOO_ADMIN]
-            ROLE_SUPER_ADMIN:       [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
-            
-        # set access_strategy to unanimous, else you may have unexpected behaviors
-        access_decision_manager:
-            strategy: unanimous
+    .. code-block:: yaml
+
+        # app/config/security.yml
+        security:
+            ...
+            role_hierarchy:
+                # for convenience, I decided to gather Sonata roles here
+                ROLE_SONATA_FOO_READER:
+                    - ROLE_SONATA_ADMIN_DEMO_FOO_LIST
+                    - ROLE_SONATA_ADMIN_DEMO_FOO_VIEW
+                ROLE_SONATA_FOO_EDITOR:
+                    - ROLE_SONATA_ADMIN_DEMO_FOO_CREATE
+                    - ROLE_SONATA_ADMIN_DEMO_FOO_EDIT
+                ROLE_SONATA_FOO_ADMIN:
+                    - ROLE_SONATA_ADMIN_DEMO_FOO_DELETE
+                    - ROLE_SONATA_ADMIN_DEMO_FOO_EXPORT
+                # those are the roles I will use (less verbose)
+                ROLE_STAFF:             [ROLE_USER, ROLE_SONATA_FOO_READER]
+                ROLE_ADMIN:             [ROLE_STAFF, ROLE_SONATA_FOO_EDITOR, ROLE_SONATA_FOO_ADMIN]
+                ROLE_SUPER_ADMIN:       [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+            # set access_strategy to unanimous, else you may have unexpected behaviors
+            access_decision_manager:
+                strategy: unanimous
 
 Note that we also set ``access_strategy`` to unanimous.
 It means that if one voter (for example Sonata) refuses access, access will be denied.
-For more information on this subject, please see `here
-<http://symfony.com/doc/2.2/cookbook/security/voters.html#changing-the-access-decision-strategy>`_
+For more information on this subject, please see `changing the access decision strategy`_
+in the Symfony documentation.
 
 Usage
 ~~~~~
-            
+
 You can now test if an user is authorized from an Admin class:
 
 .. code-block:: php
@@ -151,7 +158,7 @@ You can now test if an user is authorized from an Admin class:
         if ($this->isGranted('LIST')) {
             ...
         }
-        
+
 From a controller extending ``Sonata\AdminBundle\Controller\CRUDController``:
 
 .. code-block:: php
@@ -178,8 +185,7 @@ Going further
 ~~~~~~~~~~~~~
 
 Because Sonata role handler supplements Symfony2 security, but does not override it, you are free to do more advanced operations.
-For example, you can `create your own voter
-<http://symfony.com/doc/2.2/cookbook/security/voters.html>`_
+For example, you can `create your own voter`_
 
 Customizing the handler behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -189,36 +195,41 @@ If you want to change the handler behavior (for example, to pass the current obj
 
 Then declare your handler as a service:
 
-.. code-block:: xml
+.. configuration-block::
 
-    <parameters>
-        <parameter key="acme.demo.security.handler.role.class" >Acme\DemoBundle\Security\Handler\RoleSecurityHandler</parameter>
-    </parameters>
-    <services>
-        <service id="acme.demo.security.handler.role" class="%acme.demo.security.handler.role.class%" public="false">
-            <argument type="service" id="security.context" on-invalid="null" />
-            <argument type="collection">
-                <argument>ROLE_SUPER_ADMIN</argument>
-            </argument>
-        </service>
-    ...
-    
-And specify it as Sonata security handler on your configuration (``config.yml``):
+    .. code-block:: xml
 
-.. code-block: yaml
+        <parameters>
+            <parameter key="acme.demo.security.handler.role.class" >Acme\DemoBundle\Security\Handler\RoleSecurityHandler</parameter>
+        </parameters>
+        <services>
+            <service id="acme.demo.security.handler.role" class="%acme.demo.security.handler.role.class%" public="false">
+                <argument type="service" id="security.context" on-invalid="null" />
+                <argument type="collection">
+                    <argument>ROLE_SUPER_ADMIN</argument>
+                </argument>
+            </service>
+        ...
 
-    sonata_admin:
-        security:
-            handler: acme.demo.security.handler.role
+And specify it as Sonata security handler on your configuration:
+
+.. configuration-block::
+
+    .. code-block:: yaml
+
+        # app/config/config.yml
+        sonata_admin:
+            security:
+                handler: acme.demo.security.handler.role
 
 ACL and FriendsOfSymfony/UserBundle
 -----------------------------------
 
 If you want an easy way to handle users, please use:
 
-- https://github.com/FriendsOfSymfony/FOSUserBundle: handle users and groups
+- `FOSUserBundle <https://github.com/FriendsOfSymfony/FOSUserBundle>`_: handle users and groups
   stored in RDMS or MongoDB
-- https://github.com/sonata-project/SonataUserBundle: integrates the 
+- `SonataUserBundle <https://github.com/sonata-project/SonataUserBundle>`_: integrates the
   ``FriendsOfSymfony/UserBundle`` with the ``AdminBundle``
 
 The security integration is a work in progress and has some known issues:
@@ -265,12 +276,14 @@ User class (in a custom UserBundle). Do it as follows:
 
 In your ``app/config/config.yml`` you then need to put the following:
 
-.. code-block:: yaml
+.. configuration-block::
 
-    fos_user:
-        db_driver: orm
-        firewall_name: main
-        user_class: Acme\UserBundle\Entity\User
+    .. code-block:: yaml
+
+        fos_user:
+            db_driver: orm
+            firewall_name: main
+            user_class: Acme\UserBundle\Entity\User
 
 The following configuration for the SonataUserBundle defines:
 
@@ -281,71 +294,76 @@ The following configuration for the SonataUserBundle defines:
 - the ``acl`` option to enable the ACL.
 - the ``AdminPermissionMap`` defines the permissions of the Admin class
 
-.. code-block:: yaml
+.. configuration-block::
 
-    # app/config/security.yml
+    .. code-block:: yaml
 
-    parameters:
-        # ... other parameters
-        security.acl.permission.map.class: Sonata\AdminBundle\Security\Acl\Permission\AdminPermissionMap
-        # optionally use a custom MaskBuilder
-        #sonata.admin.security.mask.builder.class: Sonata\AdminBundle\Security\Acl\Permission\MaskBuilder
+        # app/config/security.yml
+
+        parameters:
+            # ... other parameters
+            security.acl.permission.map.class: Sonata\AdminBundle\Security\Acl\Permission\AdminPermissionMap
+            # optionally use a custom MaskBuilder
+            #sonata.admin.security.mask.builder.class: Sonata\AdminBundle\Security\Acl\Permission\MaskBuilder
 
 In ``app/config/security.yml``:
 
-.. code-block:: yaml
+.. configuration-block::
 
-    security:
-        providers:
-            fos_userbundle:
-                id: fos_user.user_manager
+    .. code-block:: yaml
 
-        firewalls:
-            main:
-                pattern:      .*
-                form-login:
-                    provider:       fos_userbundle
-                    login_path:     /login
-                    use_forward:    false
-                    check_path:     /login_check
-                    failure_path:   null
-                logout:       true
-                anonymous:    true
+        # app/config/security.yml
+        security:
+            providers:
+                fos_userbundle:
+                    id: fos_user.user_manager
 
-        access_control:
-            # The WDT has to be allowed to anonymous users to avoid requiring the login with the AJAX request
-            - { path: ^/wdt/, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/profiler/, role: IS_AUTHENTICATED_ANONYMOUSLY }
+            firewalls:
+                main:
+                    pattern:      .*
+                    form-login:
+                        provider:       fos_userbundle
+                        login_path:     /login
+                        use_forward:    false
+                        check_path:     /login_check
+                        failure_path:   null
+                    logout:       true
+                    anonymous:    true
 
-            # AsseticBundle paths used when using the controller for assets
-            - { path: ^/js/, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/css/, role: IS_AUTHENTICATED_ANONYMOUSLY }
+            access_control:
+                # The WDT has to be allowed to anonymous users to avoid requiring the login with the AJAX request
+                - { path: ^/wdt/, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/profiler/, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
-            # URL of FOSUserBundle which need to be available to anonymous users
-            - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/login_check$, role: IS_AUTHENTICATED_ANONYMOUSLY } # for the case of a failed login
-            - { path: ^/user/new$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/user/check-confirmation-email$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/user/confirm/, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/user/confirmed$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/user/request-reset-password$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/user/send-resetting-email$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/user/check-resetting-email$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/user/reset-password/, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                # AsseticBundle paths used when using the controller for assets
+                - { path: ^/js/, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/css/, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
-            # Secured part of the site
-            # This config requires being logged for the whole site and having the admin role for the admin part.
-            # Change these rules to adapt them to your needs
-            - { path: ^/admin/, role: ROLE_ADMIN }
-            - { path: ^/.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                # URL of FOSUserBundle which need to be available to anonymous users
+                - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/login_check$, role: IS_AUTHENTICATED_ANONYMOUSLY } # for the case of a failed login
+                - { path: ^/user/new$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/user/check-confirmation-email$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/user/confirm/, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/user/confirmed$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/user/request-reset-password$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/user/send-resetting-email$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/user/check-resetting-email$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+                - { path: ^/user/reset-password/, role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+                # Secured part of the site
+                # This config requires being logged for the whole site and having the admin role for the admin part.
+                # Change these rules to adapt them to your needs
+                - { path: ^/admin/, role: ROLE_ADMIN }
+                - { path: ^/.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
 
-        role_hierarchy:
-            ROLE_ADMIN:       [ROLE_USER, ROLE_SONATA_ADMIN]
-            ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+            role_hierarchy:
+                ROLE_ADMIN:       [ROLE_USER, ROLE_SONATA_ADMIN]
+                ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
-        acl:
-            connection: default
+            acl:
+                connection: default
 
 - Install the ACL tables ``php app/console init:acl``
 
@@ -445,9 +463,10 @@ Vocabulary used for Access Control Lists:
   There can be many voters that may have different permission maps. However,
   prevent that multiple voters vote on the same class with overlapping bitmasks.
 
-See the cookbook article "Advanced ACL concepts" for the meaning of the different
-permissions:
-http://symfony.com/doc/current/cookbook/security/acl_advanced.html#pre-authorization-decisions.
+See the cookbook article "`Advanced ACL concepts 
+<http://symfony.com/doc/current/cookbook/security/acl_advanced.html#pre-authorization-decisions.>`_" 
+for the meaning of the different permissions.
+
 
 How is access granted?
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -478,7 +497,7 @@ In some occasions you need to create a custom voter or a custom permission map
 because for example you want to restrict access using extra rules:
 
 - create a custom voter class that extends the ``AclVoter``
-  
+
   .. code-block:: php
 
       <?php
@@ -535,39 +554,43 @@ because for example you want to restrict access using extra rules:
   your bundle
 
 - declare the voter and permission map as a service
-  
-  .. code-block:: xml
 
-      <!-- src/Acme/DemoBundle/Resources/config/services.xml -->
+    .. configuration-block::
 
-      <parameters>
-          <parameter key="security.acl.user_voter.class">Acme\DemoBundle\Security\Authorization\Voter\UserAclVoter</parameter>
-          <!-- <parameter key="security.acl.user_permission.map.class">Acme\DemoBundle\Security\Acl\Permission\UserAdminPermissionMap</parameter> -->
-      </parameters>
+      .. code-block:: xml
 
-      <services>
-          <!-- <service id="security.acl.user_permission.map" class="%security.acl.permission.map.class%" public="false"></service> -->
+          <!-- src/Acme/DemoBundle/Resources/config/services.xml -->
 
-          <service id="security.acl.voter.user_permissions" class="%security.acl.user_voter.class%" public="false">
-              <tag name="monolog.logger" channel="security" />
-              <argument type="service" id="security.acl.provider" />
-              <argument type="service" id="security.acl.object_identity_retrieval_strategy" />
-              <argument type="service" id="security.acl.security_identity_retrieval_strategy" />
-              <argument type="service" id="security.acl.permission.map" />
-              <argument type="service" id="logger" on-invalid="null" />
-              <tag name="security.voter" priority="255" />
-          </service>
-      </services>
+          <parameters>
+              <parameter key="security.acl.user_voter.class">Acme\DemoBundle\Security\Authorization\Voter\UserAclVoter</parameter>
+              <!-- <parameter key="security.acl.user_permission.map.class">Acme\DemoBundle\Security\Acl\Permission\UserAdminPermissionMap</parameter> -->
+          </parameters>
+
+          <services>
+              <!-- <service id="security.acl.user_permission.map" class="%security.acl.permission.map.class%" public="false"></service> -->
+
+              <service id="security.acl.voter.user_permissions" class="%security.acl.user_voter.class%" public="false">
+                  <tag name="monolog.logger" channel="security" />
+                  <argument type="service" id="security.acl.provider" />
+                  <argument type="service" id="security.acl.object_identity_retrieval_strategy" />
+                  <argument type="service" id="security.acl.security_identity_retrieval_strategy" />
+                  <argument type="service" id="security.acl.permission.map" />
+                  <argument type="service" id="logger" on-invalid="null" />
+                  <tag name="security.voter" priority="255" />
+              </service>
+          </services>
 
 - change the access decision strategy to ``unanimous``
 
-  .. code-block:: yaml
+    .. configuration-block::
 
-      # app/config/security.yml
-      security:
-          access_decision_manager:
-              # Strategy can be: affirmative, unanimous or consensus
-              strategy: unanimous
+      .. code-block:: yaml
+
+          # app/config/security.yml
+          security:
+              access_decision_manager:
+                  # Strategy can be: affirmative, unanimous or consensus
+                  strategy: unanimous
 
 - to make this work the permission needs to be checked using the Object ACL
 
@@ -614,6 +637,12 @@ In the templates, or in your code, you can use the Admin method ``isGranted()``:
       {# or use the default is_granted symfony helper, the following will give the same result #}
       {% if is_granted('ROLE_SUPER_ADMIN') or is_granted('DELETE', object) %} {# ... #} {% endif %}
 
+List filtering
+~~~~~~~~~~~~~~
+
+List filtering using ACL is available as a third party bundle: `CoopTilleulsAclSonataAdminExtensionBundle <https://github.com/coopTilleuls/CoopTilleulsAclSonataAdminExtensionBundle>`_.  
+When enabled, the logged in user will only see the objects for which it has the `VIEW` right (or superior).
+
 ACL editor
 ----------
 
@@ -638,7 +667,7 @@ User list customization
 By default, the ACL editor allows to set permissions for all users managed by
 ``FOSUserBundle``.
 
-To cutomize displayed user override
+To customize displayed user override
 `Sonata\AdminBundle\Controller\CRUDController::getAclUsers()`. This method must
 return an iterable collection of users.
 
@@ -668,8 +697,15 @@ service to use when retrieving your users.
   collection of users
 - Update your admin configuration to reference your service name
 
-.. code-block:: yaml
+.. configuration-block::
 
-    sonata_admin:
-        security:
-            acl_user_manager: my_user_manager # The name of your service
+    .. code-block:: yaml
+
+        # app/config/config.yml
+        sonata_admin:
+            security:
+                acl_user_manager: my_user_manager # The name of your service
+
+.. _`SonataUserBundle's documentation area`: http://sonata-project.org/bundles/user/master/doc/reference/installation.html
+.. _`changing the access decision strategy`: http://symfony.com/doc/2.2/cookbook/security/voters.html#changing-the-access-decision-strategy
+.. _`create your own voter`: http://symfony.com/doc/2.2/cookbook/security/voters.html

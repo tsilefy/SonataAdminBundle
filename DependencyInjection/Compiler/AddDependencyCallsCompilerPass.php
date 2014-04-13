@@ -31,6 +31,7 @@ class AddDependencyCallsCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
+        $parameterBag = $container->getParameterBag();
         $groupDefaults = $admins = $classes = array();
 
         $pool = $container->getDefinition('sonata.admin.pool');
@@ -55,24 +56,32 @@ class AddDependencyCallsCompilerPass implements CompilerPassInterface
                 $arguments = $definition->getArguments();
 
                 $admins[] = $id;
-                $classes[$arguments[1]] = $id;
 
-                $showInDashboard = (boolean) (isset($attributes['show_in_dashboard']) ? $attributes['show_in_dashboard'] : true);
+                if (!isset($classes[$arguments[1]])) {
+                    $classes[$arguments[1]] = array();
+                }
+
+                $classes[$arguments[1]][] = $id;
+
+                $showInDashboard = (boolean) (isset($attributes['show_in_dashboard']) ?  $parameterBag->resolveValue($attributes['show_in_dashboard']) : true);
                 if (!$showInDashboard) {
                     continue;
                 }
 
-                $groupName = isset($attributes['group']) ? $attributes['group'] : 'default';
+                $resolvedGroupName = isset($attributes['group']) ? $parameterBag->resolveValue($attributes['group']) : 'default';
                 $labelCatalogue = isset($attributes['label_catalogue']) ? $attributes['label_catalogue'] : 'SonataAdminBundle';
+                $icon = isset($attributes['icon']) ? $attributes['icon'] : '<i class="fa fa-folder"></i>';
 
-                if (!isset($groupDefaults[$groupName])) {
-                    $groupDefaults[$groupName] = array(
-                        'label'           => $groupName,
-                        'label_catalogue' => $labelCatalogue
+                if (!isset($groupDefaults[$resolvedGroupName])) {
+                    $groupDefaults[$resolvedGroupName] = array(
+                        'label'           => $resolvedGroupName,
+                        'label_catalogue' => $labelCatalogue,
+                        'icon' => $icon,
+                        'roles' => array()
                     );
                 }
 
-                $groupDefaults[$groupName]['items'][] = $id;
+                $groupDefaults[$resolvedGroupName]['items'][] = $id;
             }
         }
 
@@ -81,27 +90,37 @@ class AddDependencyCallsCompilerPass implements CompilerPassInterface
             $groups = $dashboardGroupsSettings;
 
             foreach ($dashboardGroupsSettings as $groupName => $group) {
-                if (!isset($groupDefaults[$groupName])) {
-                    $groupDefaults[$groupName] = array(
+                $resolvedGroupName = $parameterBag->resolveValue($groupName);
+                if (!isset($groupDefaults[$resolvedGroupName])) {
+                    $groupDefaults[$resolvedGroupName] = array(
                         'items' => array(),
-                        'label' => $groupName
+                        'label' => $resolvedGroupName,
+                        'roles' => array()
                     );
                 }
 
                 if (empty($group['items'])) {
-                    $groups[$groupName]['items'] = $groupDefaults[$groupName]['items'];
+                    $groups[$resolvedGroupName]['items'] = $groupDefaults[$resolvedGroupName]['items'];
                 }
 
                 if (empty($group['label'])) {
-                    $groups[$groupName]['label'] = $groupDefaults[$groupName]['label'];
+                    $groups[$resolvedGroupName]['label'] = $groupDefaults[$resolvedGroupName]['label'];
                 }
 
                 if (empty($group['label_catalogue'])) {
-                    $groups[$groupName]['label_catalogue'] = 'SonataAdminBundle';
+                    $groups[$resolvedGroupName]['label_catalogue'] = 'SonataAdminBundle';
+                }
+
+                if (empty($group['icon'])) {
+                    $groups[$resolvedGroupName]['icon'] = $groupDefaults[$resolvedGroupName]['icon'];
                 }
 
                 if (!empty($group['item_adds'])) {
-                    $group['items'] = array_merge($groupDefaults[$groupName]['items'], $group['item_adds']);
+                    $groups[$resolvedGroupName]['items'] = array_merge($groups[$resolvedGroupName]['items'], $group['item_adds']);
+                }
+
+                if (empty($group['roles'])) {
+                    $groups[$resolvedGroupName]['roles'] = $groupDefaults[$resolvedGroupName]['roles'];
                 }
             }
         } else {
@@ -257,6 +276,7 @@ class AddDependencyCallsCompilerPass implements CompilerPassInterface
         // make sure the default templates are defined
         $definedTemplates = array_merge(array(
             'user_block'               => 'SonataAdminBundle:Core:user_block.html.twig',
+            'add_block'                => 'SonataAdminBundle:Core:add_block.html.twig',
             'layout'                   => 'SonataAdminBundle::standard_layout.html.twig',
             'ajax'                     => 'SonataAdminBundle::ajax_layout.html.twig',
             'dashboard'                => 'SonataAdminBundle:Core:dashboard.html.twig',
@@ -264,7 +284,7 @@ class AddDependencyCallsCompilerPass implements CompilerPassInterface
             'show'                     => 'SonataAdminBundle:CRUD:show.html.twig',
             'edit'                     => 'SonataAdminBundle:CRUD:edit.html.twig',
             'history'                  => 'SonataAdminBundle:CRUD:history.html.twig',
-            'history_revision'         => 'SonataAdminBundle:CRUD:history_revision.html.twig',
+            'history_revision_timestamp' => 'SonataAdminBundle:CRUD:history_revision_timestamp.html.twig',
             'acl'                      => 'SonataAdminBundle:CRUD:acl.html.twig',
             'action'                   => 'SonataAdminBundle:CRUD:action.html.twig',
             'short_object_description' => 'SonataAdminBundle:Helper:short-object-description.html.twig',

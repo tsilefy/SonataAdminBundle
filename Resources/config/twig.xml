@@ -11,5 +11,4 @@
             <argument type="service" id="sonata.admin.pool" />
         </service>
     </services>
-
 </container>

@@ -82,7 +82,7 @@ And add this:
         return 'SonataAdminBundle';
     }
 
-See the [Symfony bundle overriding mechanism](http://symfony.com/doc/current/cookbook/bundles/inheritance.html) 
+See the `Symfony bundle overriding mechanism`_
 for further explanation of overriding bundle templates.
 
 
@@ -134,6 +134,29 @@ This method may return three different values:
 
         // if at least one but not the target model is selected, a merge can be done.
         return count($selectedIds) > 0;
+    }
+
+(Optional) Executing a pre batch hook
+-------------------------------------
+
+In your admin class you can create a ``preBacthAction`` method to execute something before doing the batch action.
+The main purpose of this method is to alter the query or the list of selected id.
+
+.. code-block:: php
+
+    <?php
+
+    // In your Admin class
+
+    public function preBatchAction($actionName, ProxyQueryInterface $query, array & $idx, $allElements)
+    {
+        // altering the query or the idx array
+        $foo = $query->getParameter('foo')->getValue();
+
+        // Doing something with the foo object
+        // ...
+
+        $query->setParameter('foo', $bar);
     }
 
 
@@ -196,3 +219,5 @@ granularity), the passed query is ``null``.
           $this->admin->generateUrl('list',$this->admin->getFilterParameters())
         );
     }
+
+.. _Symfony bundle overriding mechanism: http://symfony.com/doc/current/cookbook/bundles/inheritance.html

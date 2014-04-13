@@ -11,9 +11,11 @@
 
 namespace Sonata\AdminBundle\Form\ChoiceList;
 
+use Doctrine\Common\Util\ClassUtils;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyPath;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
+use Symfony\Component\Form\Exception\RuntimeException;
 use Symfony\Component\Form\Extension\Core\ChoiceList\SimpleChoiceList;
 use Sonata\AdminBundle\Model\ModelManagerInterface;
 
@@ -104,9 +106,9 @@ class ModelChoiceList extends SimpleChoiceList
      *
      * If the entities were passed in the "choices" option, this method
      * does not have any significant overhead. Otherwise, if a query builder
-     * was passed in the "query_builder" option, this builder is now used
-     * to construct a query which is executed. In the last case, all entities
-     * for the underlying class are fetched from the repository.
+     * was passed in the "query" option, this builder is now used to construct
+     * a query which is executed. In the last case, all entities for the
+     * underlying class are fetched from the repository.
      *
      * If the option "property" was passed, the property path in that option
      * is used as option values. Otherwise this method tries to convert
@@ -132,11 +134,15 @@ class ModelChoiceList extends SimpleChoiceList
         foreach ($entities as $key => $entity) {
             if ($this->propertyPath) {
                 // If the property option was given, use it
-                $propertyAccessor = PropertyAccess::getPropertyAccessor();
+                $propertyAccessor = PropertyAccess::createPropertyAccessor();
                 $value = $propertyAccessor->getValue($entity, $this->propertyPath);
             } else {
-                // Otherwise expect a __toString() method in the entity
-                $value = (string) $entity;
+                 // Otherwise expect a __toString() method in the entity
+                try {
+                    $value = (string) $entity;
+                } catch (\Exception $e) {
+                    throw new RuntimeException(sprintf("Unable to convert the entity %s to String, entity must have a '__toString()' method defined", ClassUtils::getClass($entity)), 0, $e);
+                }
             }
 
             if (count($this->identifier) > 1) {
@@ -182,7 +188,7 @@ class ModelChoiceList extends SimpleChoiceList
      * Returns the entity for the given key
      *
      * If the underlying entities have composite identifiers, the choices
-     * are intialized. The key is expected to be the index in the choices
+     * are initialized. The key is expected to be the index in the choices
      * array in this case.
      *
      * If they have single identifiers, they are either fetched from the
@@ -243,7 +249,7 @@ class ModelChoiceList extends SimpleChoiceList
         try {
             return $this->modelManager->getIdentifierValues($entity);
         } catch (\Exception $e) {
-            throw new InvalidArgumentException(sprintf("Unable to retrieve the identifier values for entity %s", get_class($entity)), 0, $e);
+            throw new InvalidArgumentException(sprintf("Unable to retrieve the identifier values for entity %s", ClassUtils::getClass($entity)), 0, $e);
         }
     }
 

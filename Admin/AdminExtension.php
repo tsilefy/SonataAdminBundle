@@ -62,6 +62,16 @@ abstract class AdminExtension implements AdminExtensionInterface
     /**
      * {@inheritdoc}
      */
+    public function configureTabMenu(AdminInterface $admin, MenuItemInterface $menu, $action, AdminInterface $childAdmin = null)
+    {
+        // Use configureSideMenu not to mess with previous overrides
+        // TODO remove once deprecation period is over
+        $this->configureSideMenu($admin, $menu, $action, $childAdmin);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function validate(AdminInterface $admin, ErrorElement $errorElement, $object)
     {}
 
@@ -75,5 +85,55 @@ abstract class AdminExtension implements AdminExtensionInterface
      * {@inheritdoc}
      */
     public function alterNewInstance(AdminInterface $admin, $object)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function alterObject(AdminInterface $admin, $object)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPersistentParameters(AdminInterface $admin)
+    {
+        return array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function preUpdate(AdminInterface $admin, $object)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postUpdate(AdminInterface $admin, $object)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function prePersist(AdminInterface $admin, $object)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postPersist(AdminInterface $admin, $object)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function preRemove(AdminInterface $admin, $object)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postRemove(AdminInterface $admin, $object)
     {}
 }

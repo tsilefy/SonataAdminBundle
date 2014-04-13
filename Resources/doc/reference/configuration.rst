@@ -1,5 +1,13 @@
+Configuration // Warning: this doc page is not up to date and will be removed soon.
+===================================================================================
+
+.. note::
+    This page will be removed soon, as it's content is being improved and moved to
+    other pages of the documentation. Please refer to each section's documentation for up-to-date
+    information on SonataAdminBundle configuration options.
+
 Configuration
-=============
+-------------
 
 Configuration options
 
@@ -8,68 +16,146 @@ Configuration options
         * ``sonata.admin.security.handler.role`` : The default value
         * ``sonata.admin.security.handler.acl`` : Use this service if you want ACL
 
-* ``title`` : The admin's title, can be the client name for instance (default: Sonata Admin)
-* ``title_logo`` : logo to use, must be an image with a height of 28px (default : bundles/sonataadmin/logo_title.png)
-
-Please see :doc:`templates` for more information on how to configure default templates.
-
 
 Full Configuration Options
 --------------------------
 
-.. code-block:: yaml
+.. configuration-block::
 
-    sonata_admin:
-        security:
-            handler: sonata.admin.security.handler.role
-            acl_user_manager: fos_user.user_manager # Name of the user manager service used to retrieve ACL users 
+    .. code-block:: yaml
 
-        title:      Sonata Project
-        title_logo: bundles/sonataadmin/logo_title.png
-        options:
-            html5_validate: false # does not use html5 validation
-            confirm_exit:   false # disable confirmation when quitting with unsaved changes
-            
-        templates:
-            # default global templates
-            layout:  SonataAdminBundle::standard_layout.html.twig
-            ajax:    SonataAdminBundle::ajax_layout.html.twig
-            dashboard: SonataAdminBundle:Core:dashboard.html.twig
+        # Default configuration for "SonataAdminBundle"
+        sonata_admin:
+            security:
+                handler:              sonata.admin.security.handler.noop
+                information:
 
-            # default values of actions templates, they should extend global templates
-            list:    SonataAdminBundle:CRUD:list.html.twig
-            show:    SonataAdminBundle:CRUD:show.html.twig
-            edit:    SonataAdminBundle:CRUD:edit.html.twig
-            history: SonataAdminBundle:CRUD:history.html.twig
-            preview: SonataAdminBundle:CRUD:preview.html.twig
-            delete:  SonataAdminBundle:CRUD:delete.html.twig
-            batch:   SonataAdminBundle:CRUD:list__batch.html.twig
-            batch_confirmation: SonataAdminBundle:CRUD:batch_confirmation.html.twig
+                    # Prototype
+                    id:                   []
+                admin_permissions:
 
-            # list related templates
-            inner_list_row: SonataAdminBundle:CRUD:list_inner_row.html.twig
-            base_list_field: SonataAdminBundle:CRUD:base_list_field.html.twig
+                    # Defaults:
+                    - CREATE
+                    - LIST
+                    - DELETE
+                    - UNDELETE
+                    - EXPORT
+                    - OPERATOR
+                    - MASTER
+                object_permissions:
 
-            # default values of helper templates
-            short_object_description: SonataAdminBundle:Helper:short-object-description.html.twig
+                    # Defaults:
+                    - VIEW
+                    - EDIT
+                    - DELETE
+                    - UNDELETE
+                    - OPERATOR
+                    - MASTER
+                    - OWNER
+                acl_user_manager:     ~         # Name of the user manager service used to retrieve ACL users
+            title:                Sonata Admin
+            title_logo:           bundles/sonataadmin/logo_title.png
+            options:
+                html5_validate:                         true      # use html5 validation
+                confirm_exit:                           true      # enabled confirmation when quitting with unsaved changes
+                use_select2:                            true      # enable select2
+                pager_links:                            ~         # pager max links to display
+                dropdown_number_groups_per_colums:      2         # max items per column in dropdown menu (add button in top nav)
+            dashboard:
+                groups:
 
-            # default values of block templates, they should extend the base_block template
-            list_block: SonataAdminBundle:Block:block_admin_list.html.twig
+                    # Prototype
+                    id:
+                        label:                ~
+                        label_catalogue:      ~
+                        items:                []
+                        item_adds:            []
+                        roles:                []
+                blocks:
+                    type:                 ~
+                    settings:
 
-        dashboard:
-            blocks:
-                # display a dashboard block
-                - { position: left, type: sonata.admin.block.admin_list }
+                        # Prototype
+                        id:                   []
+                    position:             right
+            admin_services:
 
-                # Customize this part to add new block configuration
-                - { position: right, type: sonata.block.service.text, settings: { content: "<h2>Welcome to the Sonata Admin</h2> <p>This is a <code>sonata.block.service.text</code> from the Block Bundle, you can create and add new block in these area by configuring the <code>sonata_admin</code> section.</p> <br /> For instance, here a RSS feed parser (<code>sonata.block.service.rss</code>):"} }
-                - { position: right, type: sonata.block.service.rss, settings: { title: Sonata Project's Feeds, url: http://sonata-project.org/blog/archive.rss }}
+                # Prototype
+                id:
+                    model_manager:        ~
+                    form_contractor:      ~
+                    show_builder:         ~
+                    list_builder:         ~
+                    datagrid_builder:     ~
+                    translator:           ~
+                    configuration_pool:   ~
+                    router:               ~
+                    validator:            ~
+                    security_handler:     ~
+                    label:                ~
+            templates:
+                user_block:           SonataAdminBundle:Core:user_block.html.twig
+                add_block:            SonataAdminBundle:Core:add_block.html.twig
+                layout:               SonataAdminBundle::standard_layout.html.twig
+                ajax:                 SonataAdminBundle::ajax_layout.html.twig
+                dashboard:            SonataAdminBundle:Core:dashboard.html.twig
+                search:               SonataAdminBundle:Core:search.html.twig
+                list:                 SonataAdminBundle:CRUD:list.html.twig
+                show:                 SonataAdminBundle:CRUD:show.html.twig
+                edit:                 SonataAdminBundle:CRUD:edit.html.twig
+                preview:              SonataAdminBundle:CRUD:preview.html.twig
+                history:              SonataAdminBundle:CRUD:history.html.twig
+                acl:                  SonataAdminBundle:CRUD:acl.html.twig
+                history_revision_timestamp:  SonataAdminBundle:CRUD:history_revision_timestamp.html.twig
+                action:               SonataAdminBundle:CRUD:action.html.twig
+                select:               SonataAdminBundle:CRUD:list__select.html.twig
+                list_block:           SonataAdminBundle:Block:block_admin_list.html.twig
+                search_result_block:  SonataAdminBundle:Block:block_search_result.html.twig
+                short_object_description:  SonataAdminBundle:Helper:short-object-description.html.twig
+                delete:               SonataAdminBundle:CRUD:delete.html.twig
+                batch:                SonataAdminBundle:CRUD:list__batch.html.twig
+                batch_confirmation:   SonataAdminBundle:CRUD:batch_confirmation.html.twig
+                inner_list_row:       SonataAdminBundle:CRUD:list_inner_row.html.twig
+                base_list_field:      SonataAdminBundle:CRUD:base_list_field.html.twig
+                pager_links:          SonataAdminBundle:Pager:links.html.twig
+                pager_results:        SonataAdminBundle:Pager:results.html.twig
 
-        # set to true to persist filter settings per admin module in the user's session
-        persist_filters: false
+            assets:
+                stylesheets:
 
-    sonata_block:
-        default_contexts: [cms]
-        blocks:
-            sonata.admin.block.admin_list:
-                contexts:   [admin]
+                    # Defaults:
+                    - bundles/sonataadmin/admin-lte/css/bootstrap.min.css
+                    - bundles/sonataadmin/admin-lte/css/font-awesome.min.css
+                    - bundles/sonataadmin/admin-lte/css/ionicons.min.css
+                    - bundles/sonataadmin/admin-lte/css/AdminLTE.css
+                    - bundles/sonatajquery/themes/flick/jquery-ui-1.10.4.custom.css
+                    - bundles/sonataadmin/select2/select2.css
+                    - bundles/sonataadmin/select2/select2-bootstrap.css
+                    - bundles/sonataadmin/bootstrap3-editable/bootstrap3-editable/css/bootstrap-editable.css
+                    - bundles/sonataadmin/css/styles.css
+                    - bundles/sonataadmin/css/layout.css
+                javascripts:
+
+                    # Defaults:
+                    - bundles/sonatajquery/jquery-1.10.2.js
+                    - bundles/sonatajquery/jquery-ui-1.10.4.js
+                    - bundles/sonatajquery/jquery-ui-i18n.js
+                    - bundles/sonataadmin/jquery/jquery.form.js
+                    - bundles/sonataadmin/jquery/jquery.confirmExit.js
+                    - bundles/sonataadmin/admin-lte/js/bootstrap.min.js
+                    - bundles/sonataadmin/bootstrap3-editable/bootstrap3-editable/js/bootstrap-editable.min.js
+                    - bundles/sonataadmin/select2/select2.min.js
+                    - bundles/sonataadmin/App.js
+                    - bundles/sonataadmin/Admin.js
+
+            extensions:
+
+                # Prototype
+                id:
+                    admins:               []
+                    excludes:             []
+                    implements:           []
+                    extends:              []
+                    instanceof:           []
+            persist_filters:      false     # set to true to persist filter settings per admin module in the user's session
+

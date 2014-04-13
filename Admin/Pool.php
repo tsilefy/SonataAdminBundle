@@ -25,6 +25,8 @@ class Pool
 
     protected $templates    = array();
 
+    protected $assets       = array();
+
     protected $title;
 
     protected $titleLogo;
@@ -32,9 +34,10 @@ class Pool
     protected $options;
 
     /**
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-     * @param string                                                    $title
-     * @param string                                                    $logoTitle
+     * @param ContainerInterface $container
+     * @param string             $title
+     * @param string             $logoTitle
+     * @param array              $options
      */
     public function __construct(ContainerInterface $container, $title, $logoTitle, $options = array())
     {
@@ -58,6 +61,17 @@ class Pool
         }
 
         return $groups;
+    }
+
+    /**
+     * Returns whether an admin group exists or not.
+     *
+     * @param string $group
+     * @return bool
+     */
+    public function hasGroup($group)
+    {
+        return isset($this->adminGroups[$group]);
     }
 
     /**
@@ -89,6 +103,32 @@ class Pool
     }
 
     /**
+     * Returns all admins related to the given $group
+     *
+     * @param string $group
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    public function getAdminsByGroup($group)
+    {
+        if (!isset($this->adminGroups[$group])) {
+            throw new \InvalidArgumentException(sprintf('Group "%s" not found in admin pool.', $group));
+        }
+
+        $admins = array();
+
+        if (!isset($this->adminGroups[$group]['items'])) {
+            return $admins;
+        }
+
+        foreach ($this->adminGroups[$group]['items'] as $id) {
+            $admins[] = $this->getInstance($id);
+        }
+
+        return $admins;
+    }
+
+    /**
      * return the admin related to the given $class
      *
      * @param string $class
@@ -101,7 +141,15 @@ class Pool
             return null;
         }
 
-        return $this->getInstance($this->adminClasses[$class]);
+        if (!is_array($this->adminClasses[$class])) {
+            throw new \RuntimeException("Invalid format for the Pool::adminClass property");
+        }
+
+        if (count($this->adminClasses[$class]) > 1) {
+            throw new \RuntimeException(sprintf('Unable to found a valid admin for the class: %s, get too many admin registered: %s', $class, implode(",", $this->adminClasses[$class])));
+        }
+
+        return $this->getInstance($this->adminClasses[$class][0]);
     }
 
     /**
@@ -260,16 +308,17 @@ class Pool
     }
 
     /**
-     * @param $name
+     * @param string $name
+     * @param mixed  $default
      *
      * @return mixed
      */
-    public function getOption($name)
+    public function getOption($name, $default = null)
     {
         if (isset($this->options[$name])) {
             return $this->options[$name];
         }
 
-        return null;
+        return $default;
     }
 }
